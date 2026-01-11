@@ -25,5 +25,25 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #015e90;
+  background: #00404f;
+}
+
+/* Padding de las tarjetas */
+
+.ant-card-small > .ant-card-body {
+  padding: 8px !important;
+}
+
+/* Margin de los botones de modal de confirmación */
+
+:where(.ant-modal-confirm) .ant-modal-confirm-btns {
+  margin-top: 7px !important;
+}
+
+/* Estiliza el dropdown del filtro en las tablas */
+
+.ant-dropdown .ant-table-filter-dropdown .ant-dropdown-menu {
+  max-height: 130px;
+  overflow-x: auto;
+  overflow-y: auto;
 }

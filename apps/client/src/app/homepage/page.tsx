@@ -25,7 +25,7 @@ const HomePage: React.FC = () => {
         alignItems: "center",
       }}
     >
-      <Space size={"middle"} direction="vertical" align="center">
+      <Space size={"middle"} orientation="vertical" align="center">
         <h2>Prueba de Ant Design y Redux Toolkit</h2>
 
         <h4>Número de identificación Usuario: {idNumberUserState}</h4>

@@ -8,13 +8,13 @@ import themeConfig from "@/theme/themeConfig";
 import es_ES from "antd/locale/es_ES";
 import { Providers } from "@/redux/providers";
 import "./globals.css";
-import "@ant-design/v5-patch-for-react-19";
+// import "@ant-design/v5-patch-for-react-19";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Fénix",
-  description: "Software de Clínica Bonnadona",
+  title: "Fenix",
+  description: "Aplicativo de prueba tecnica",
   icons: {
     icon: "/favicon.ico",
   },
@@ -22,17 +22,15 @@ export const metadata: Metadata = {
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="en" style={{ margin: 0, padding: 0 }}>
-      <body className={inter.className} style={{ margin: 0, padding: 0 }}>
-        <Providers>
-          <main className="container-main-app">
-            <AntdRegistry>
-              <ConfigProvider theme={themeConfig} locale={es_ES}>
-                {children}
-              </ConfigProvider>
-            </AntdRegistry>
-          </main>
-        </Providers>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <AntdRegistry>
+          <ConfigProvider theme={themeConfig} locale={es_ES}>
+            <Providers>
+              <main className="container-main-app">{children}</main>
+            </Providers>
+          </ConfigProvider>
+        </AntdRegistry>
       </body>
     </html>
   );
