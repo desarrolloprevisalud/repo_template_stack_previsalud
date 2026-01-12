@@ -20,6 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@css-inline/css-inline": "^0.17.0",
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/class-validator": "^0.13.4",
     "@nestjs/common": "^11.1.10",
@@ -32,6 +34,7 @@
     "@nestjs/typeorm": "^11.0.0",
     "@types/compression": "^1.8.1",
     "@types/cookie-parser": "^1.4.10",
+    "handlebars": "^4.7.8",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
@@ -45,6 +48,7 @@
     "mssql": "^12.2.0",
     "mysql2": "^3.16.0",
     "node-schedule": "^2.1.1",
+    "nodemailer": "^7.0.12",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",

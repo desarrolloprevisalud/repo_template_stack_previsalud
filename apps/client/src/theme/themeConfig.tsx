@@ -2,7 +2,7 @@ import { type ThemeConfig } from "antd";
 
 const themeConfig: ThemeConfig = {
   token: {
-    fontSize: 11,
+    fontSize: 12,
     colorPrimary: "#00404f",
     colorText: "#313131",
     colorSplit: "#A7AFBAB2",
@@ -47,9 +47,9 @@ const themeConfig: ThemeConfig = {
       headerHeightSM: 17,
     },
     Tabs: {
-      colorBgContainer: "#745AB7",
+      colorBgContainer: "#005C70",
       itemSelectedColor: "#F7F7F7",
-      colorBorderSecondary: "#7B62A7",
+      colorBorderSecondary: "#005C70",
     },
     Switch: {
       colorPrimary: "#1D8348",

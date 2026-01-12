@@ -49,7 +49,7 @@ const CustomButton: React.FC<{
       htmlType={htmlTypeCustomButton || "button"}
       style={styleCustomButton}
       icon={iconCustomButton}
-      iconPosition={iconPositionCustomButton}
+      iconPlacement={iconPositionCustomButton}
       shape={shapeCustomButton}
       form={formCustomButton}
       disabled={disabledCustomButton}
