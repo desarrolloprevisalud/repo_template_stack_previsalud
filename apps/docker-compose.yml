@@ -1,0 +1,111 @@
+# docker-compose.yml (en la raíz del proyecto)
+version: '3.9'
+
+services:
+  # ========================================
+  # PostgreSQL Database
+  # ========================================
+  postgres:
+    image: postgres:14-alpine
+    container_name: fenix-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${TYPEORM_DATABASE}
+      POSTGRES_USER: ${TYPEORM_USERNAME}
+      POSTGRES_PASSWORD: ${TYPEORM_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432" # Solo exponer si necesitas acceso externo
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TYPEORM_USERNAME} -d ${TYPEORM_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========================================
+  # Backend - NestJS API
+  # ========================================
+  backend:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    image: fenix-backend:${VERSION:-latest}
+    container_name: fenix-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      API_PORT: 3000
+      TYPEORM_HOST: postgres
+      TYPEORM_PORT: 5432
+      TYPEORM_USERNAME: ${TYPEORM_USERNAME}
+      TYPEORM_PASSWORD: ${TYPEORM_PASSWORD}
+      TYPEORM_DATABASE: ${TYPEORM_DATABASE}
+      TYPEORM_SYNCHRONIZE: ${TYPEORM_SYNCHRONIZE:-false}
+      JWT_CONSTANTS_SECRET: ${JWT_CONSTANTS_SECRET}
+      ACCESS_TOKEN_EXPIRES_IN: ${ACCESS_TOKEN_EXPIRES_IN}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
+      BILATU_URL: ${BILATU_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ========================================
+  # Frontend - Next.js
+  # ========================================
+  frontend:
+    build:
+      context: ./apps/client
+      dockerfile: Dockerfile
+    image: fenix-frontend:${VERSION:-latest}
+    container_name: fenix-frontend
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:4000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+# ========================================
+# Networks
+# ========================================
+networks:
+  app_network:
+    driver: bridge
+
+# ========================================
+# Volumes
+# ========================================
+volumes:
+  postgres_data:
+    driver: local
