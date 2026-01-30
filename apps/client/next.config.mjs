@@ -17,6 +17,7 @@ const nextConfig = {
   },
   poweredByHeader: false,
   reactStrictMode: true,
+  swcMinify: true,
   transpilePackages: [
     "antd",
     "@ant-design",
