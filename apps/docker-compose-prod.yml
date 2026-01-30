@@ -1,4 +1,4 @@
-# docker-compose.yml (en la raíz del proyecto)
+# docker-compose.prod.yml
 version: '3.9'
 
 services:
@@ -16,44 +16,31 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432" # Solo exponer si necesitas acceso externo
     networks:
       - app_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${TYPEORM_USERNAME} -d ${TYPEORM_DATABASE}"]
+      test: ["CMD-SHELL", "pg_isready -U ${TYPEORM_USERNAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   # ========================================
-  # Backend - NestJS API
+  # Backend - NestJS (Production)
   # ========================================
   backend:
     build:
       context: ./apps/api
       dockerfile: Dockerfile
-    image: fenix-backend:${VERSION:-latest}
+      target: production
+      args:
+        NODE_VERSION: 22
+    image: app-name-back-prod:${VERSION:-latest}
     container_name: fenix-backend
     restart: unless-stopped
     ports:
-      - "3000:3000"
-    environment:
-      NODE_ENV: production
-      API_PORT: 3000
-      TYPEORM_HOST: postgres
-      TYPEORM_PORT: 5432
-      TYPEORM_USERNAME: ${TYPEORM_USERNAME}
-      TYPEORM_PASSWORD: ${TYPEORM_PASSWORD}
-      TYPEORM_DATABASE: ${TYPEORM_DATABASE}
-      TYPEORM_SYNCHRONIZE: ${TYPEORM_SYNCHRONIZE:-false}
-      JWT_CONSTANTS_SECRET: ${JWT_CONSTANTS_SECRET}
-      ACCESS_TOKEN_EXPIRES_IN: ${ACCESS_TOKEN_EXPIRES_IN}
-      MAIL_HOST: ${MAIL_HOST}
-      MAIL_PORT: ${MAIL_PORT}
-      MAIL_USER: ${MAIL_USER}
-      MAIL_PASS: ${MAIL_PASS}
-      BILATU_URL: ${BILATU_URL}
+      - "3001:3000"
+    env_file:
+      - .env.production
     depends_on:
       postgres:
         condition: service_healthy
@@ -67,23 +54,22 @@ services:
       start_period: 40s
 
   # ========================================
-  # Frontend - Next.js
+  # Frontend - Next.js (Production)
   # ========================================
   frontend:
     build:
       context: ./apps/client
       dockerfile: Dockerfile
-    image: fenix-frontend:${VERSION:-latest}
+      target: production
+      args:
+        NODE_VERSION: 22
+    image: app-name-front-prod:${VERSION:-latest}
     container_name: fenix-frontend
     restart: unless-stopped
     ports:
-      - "4000:4000"
-    environment:
-      NODE_ENV: production
-      PORT: 4000
-      NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
-      NEXTAUTH_URL: ${NEXTAUTH_URL}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      - "4001:4000"
+    env_file:
+      - .env.production
     depends_on:
       backend:
         condition: service_healthy
@@ -96,16 +82,10 @@ services:
       retries: 3
       start_period: 60s
 
-# ========================================
-# Networks
-# ========================================
 networks:
   app_network:
     driver: bridge
 
-# ========================================
-# Volumes
-# ========================================
 volumes:
   postgres_data:
     driver: local

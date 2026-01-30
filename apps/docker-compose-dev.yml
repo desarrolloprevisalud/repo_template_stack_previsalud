@@ -1,0 +1,87 @@
+# docker-compose.dev.yml
+version: '3.9'
+
+services:
+  # ========================================
+  # PostgreSQL Database
+  # ========================================
+  postgres:
+    image: postgres:14-alpine
+    container_name: fenix-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fenix_dev
+      POSTGRES_USER: fenix_user
+      POSTGRES_PASSWORD: dev_password
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app_network
+
+  # ========================================
+  # Backend - NestJS (Development)
+  # ========================================
+  backend:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+      target: development
+    image: app-name-back-dev:latest
+    container_name: fenix-backend-dev
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+      - "9229:9229"  # Puerto para debugging
+    volumes:
+      - ./apps/api:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      NODE_ENV: development
+      API_PORT: 3000
+      TYPEORM_HOST: postgres
+      TYPEORM_PORT: 5432
+      TYPEORM_USERNAME: fenix_user
+      TYPEORM_PASSWORD: dev_password
+      TYPEORM_DATABASE: fenix_dev
+      TYPEORM_SYNCHRONIZE: "true"
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+    command: npm run start:dev
+
+  # ========================================
+  # Frontend - Next.js (Development)
+  # ========================================
+  frontend:
+    build:
+      context: ./apps/client
+      dockerfile: Dockerfile
+      target: development
+    image: app-name-front-dev:latest
+    container_name: fenix-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "4001:4000"
+    volumes:
+      - ./apps/client:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:3001
+    depends_on:
+      - backend
+    networks:
+      - app_network
+    command: npm run dev
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  postgres_dev_data:
